@@ -1,7 +1,12 @@
 import bpy
+import sys
+
+argv=sys.argv
+argv=argv[argv.index("--") + 1:]
 
 print("Processing " + bpy.context.blend_data.filepath)
-filename=bpy.context.blend_data.filepath.split(".")[0]
+filename=bpy.context.blend_data.filepath.split("/")[-1].split(".")[0]
+filename=argv[0] + "/" + filename
 
 for i in bpy.data.objects:
     bpy.context.scene.objects.active = i
