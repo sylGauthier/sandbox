@@ -8,22 +8,17 @@
 #include <game/render/lights_buffer_object.h>
 #include <game/scene/opengex.h>
 
+#include "map.h"
 #include "character.h"
-
-struct Map {
-    struct ImportMetadata metadata;
-    struct ImportSharedData sharedData;
-};
 
 struct Sandbox {
     struct Map map;
     struct Character character;
 
     struct Scene scene;
+    struct LightManager lmgr;
     struct Viewer* viewer;
     struct Camera* camera;
-    unsigned int numDirectionalLights, numPointLights;
-    struct Node *dlights[MAX_DIRECTIONAL_LIGHTS], *plights[MAX_POINT_LIGHTS];
     int running;
 };
 

@@ -2,57 +2,16 @@
 
 #include "sandbox.h"
 
-static char* dirname(char* path) {
-    char* s;
-    if ((s = strrchr(path, '/'))) {
-        *s = 0;
-        return path;
-    }
-    return NULL;
-}
-
-static int load_map(struct Sandbox* sandbox, char* map) {
-    FILE* mapFile = NULL;
-    int ok = 1, i;
-
-    if (!(mapFile = fopen(map, "r"))) {
-        fprintf(stderr, "Error: map: could not open file: %s\n", map);
+static int load_character(struct Sandbox* sandbox, char* character) {
+/*
+    FILE* charFile = NULL;
+    int ok = 1;
+    if (!(charFile = fopen(character, "r"))) {
+        fprintf(stderr, "Error: could not open character file: %s\n", character);
         ok = 0;
-    } else if (!ogex_load(&sandbox->scene.root, mapFile, dirname(map), &sandbox->map.sharedData, &sandbox->map.metadata)) {
-        fprintf(stderr, "Error: map: ogex load failed\n");
-        ok = 0;
-    }
-    if (mapFile)
-        fclose(mapFile);
-    for (i = 0; i < sandbox->map.metadata.numLightNodes; i++) {
-        struct Node* n = sandbox->map.metadata.lightNodes[i];
-        switch (n->type) {
-            case NODE_DLIGHT:
-                if (sandbox->numDirectionalLights < MAX_DIRECTIONAL_LIGHTS) {
-                    lights_buffer_object_update_dlight(&sandbox->scene.lights, n->data.dlight, sandbox->numDirectionalLights);
-                    sandbox->dlights[sandbox->numDirectionalLights++] = n;
-                } else {
-                    fprintf(stderr, "Warning: directional lights limit exceeded\n");
-                }
-                break;
-            case NODE_PLIGHT:
-                if (sandbox->numPointLights < MAX_POINT_LIGHTS) {
-                    lights_buffer_object_update_plight(&sandbox->scene.lights, n->data.plight, sandbox->numPointLights);
-                    sandbox->plights[sandbox->numPointLights++] = n;
-                } else {
-                    fprintf(stderr, "Warning: point lights limit exceeded\n");
-                }
-                break;
-            default:;
-        }
-    }
-    {
-        struct AmbientLight ambient = {0};
-        lights_buffer_object_update_ambient(&sandbox->scene.lights, &ambient);
-    }
-
-    printf("%d lights - %d cameras\n", sandbox->map.metadata.numLightNodes, sandbox->map.metadata.numCameraNodes);
-    return ok;
+    } else if (!ogex_load(&sandbox->scene.root, charFile, dirname(character), 
+    */
+    return 1;
 }
 
 int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
@@ -62,14 +21,12 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
         fprintf(stderr, "Error: failed to init game library\n");
         return 0;
     }
-
-    sandbox->numDirectionalLights = 0;
-    sandbox->numPointLights = 0;
+    light_mgr_init(&sandbox->lmgr, &sandbox->scene);
     if (!(sandbox->viewer = viewer_new(1024, 768, "sandbox"))) {
         fprintf(stderr, "Error: failed to start viewer\n");
     } else if (!(sceneInit = scene_init(&sandbox->scene, NULL))) {
         fprintf(stderr, "Error: failed to init scene\n");
-    } else if (!(mapLoad = load_map(sandbox, map))) {
+    } else if (!(mapLoad = map_load(&sandbox->map, map, &sandbox->scene, &sandbox->lmgr))) {
         fprintf(stderr, "Error: failed to load map\n");
     } else {
         sandbox->running = 1;
@@ -80,8 +37,6 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
         sandbox->viewer->close_callback = close_callback;
 
         scene_update_nodes(&sandbox->scene, update_node, sandbox);
-        lights_buffer_object_update_ndlight(&sandbox->scene.lights, sandbox->numDirectionalLights);
-        lights_buffer_object_update_nplight(&sandbox->scene.lights, sandbox->numPointLights);
 
         sandbox->camera = sandbox->map.metadata.cameraNodes[0]->data.camera;
         camera_set_ratio(((float)sandbox->viewer->width) / ((float)sandbox->viewer->height), sandbox->camera->projection);

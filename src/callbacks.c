@@ -62,15 +62,15 @@ void update_node(struct Scene* scene, struct Node* n, void* data) {
 
     switch (n->type) {
         case NODE_DLIGHT:
-            for (i = 0; i < sandbox->numDirectionalLights; i++) {
-                if (n == sandbox->dlights[i]) {
+            for (i = 0; i < sandbox->lmgr.numDirectionalLights; i++) {
+                if (n == sandbox->lmgr.dlights[i]) {
                     lights_buffer_object_update_dlight(&scene->lights, n->data.dlight, i);
                 }
             }
             break;
         case NODE_PLIGHT:
-            for (i = 0; i < sandbox->numPointLights; i++) {
-                if (n == sandbox->plights[i]) {
+            for (i = 0; i < sandbox->lmgr.numPointLights; i++) {
+                if (n == sandbox->lmgr.plights[i]) {
                     lights_buffer_object_update_plight(&scene->lights, n->data.plight, i);
                 }
             }

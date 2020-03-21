@@ -12,6 +12,9 @@ enum CharacterAction {
 };
 
 struct Character {
+    struct ImportMetadata metadata;
+    struct ImportSharedData sharedData;
+
     struct Node* node;
     struct Skin* skin;
 
