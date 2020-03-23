@@ -1,21 +1,10 @@
 #include <string.h>
 
 #include "sandbox.h"
-
-static int load_character(struct Sandbox* sandbox, char* character) {
-/*
-    FILE* charFile = NULL;
-    int ok = 1;
-    if (!(charFile = fopen(character, "r"))) {
-        fprintf(stderr, "Error: could not open character file: %s\n", character);
-        ok = 0;
-    } else if (!ogex_load(&sandbox->scene.root, charFile, dirname(character), 
-    */
-    return 1;
-}
+#include "utils.h"
 
 int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
-    int sceneInit = 0, mapLoad = 0;
+    int sceneInit = 0, mapLoad = 0, charLoad = 0;
 
     if (!game_init(GAME_SHADERS_PATH)) {
         fprintf(stderr, "Error: failed to init game library\n");
@@ -28,6 +17,8 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
         fprintf(stderr, "Error: failed to init scene\n");
     } else if (!(mapLoad = map_load(&sandbox->map, map, &sandbox->scene, &sandbox->lmgr))) {
         fprintf(stderr, "Error: failed to load map\n");
+    } else if (!(charLoad = character_load(&sandbox->character, character, &sandbox->scene.root))) {
+        fprintf(stderr, "Error: failed to load character\n");
     } else {
         sandbox->running = 1;
 
@@ -38,10 +29,7 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
 
         scene_update_nodes(&sandbox->scene, update_node, sandbox);
 
-        sandbox->camera = sandbox->map.metadata.cameraNodes[0]->data.camera;
-        camera_set_ratio(((float)sandbox->viewer->width) / ((float)sandbox->viewer->height), sandbox->camera->projection);
-        camera_buffer_object_update_projection(&sandbox->scene.camera, MAT_CONST_CAST(sandbox->camera->projection));
-        camera_buffer_object_update_view_and_position(&sandbox->scene.camera, MAT_CONST_CAST(sandbox->camera->view));
+        sandbox_set_camera(sandbox, sandbox->map.metadata.cameraNodes[0]);
 
         uniform_buffer_send(&sandbox->scene.lights);
         uniform_buffer_send(&sandbox->scene.camera);
@@ -52,7 +40,7 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
         viewer_free(sandbox->viewer);
     }
     if (sceneInit) {
-        scene_free(&sandbox->scene, free_node_callback);
+        scene_free(&sandbox->scene, imported_node_free);
     }
     return 0;
 }
@@ -62,8 +50,25 @@ int sandbox_run(struct Sandbox* sandbox) {
 
     viewer_process_events(sandbox->viewer);
     dt = viewer_next_frame(sandbox->viewer);
+    character_animate(&sandbox->character, dt);
 
-    scene_update_render_queue(&sandbox->scene, MAT_CONST_CAST(sandbox->camera->view), MAT_CONST_CAST(sandbox->camera->projection));
+    scene_update_nodes(&sandbox->scene, update_node, sandbox);
+    uniform_buffer_send(&sandbox->scene.lights);
+    uniform_buffer_send(&sandbox->scene.camera);
+
+    scene_update_render_queue(&sandbox->scene, MAT_CONST_CAST(sandbox->camera->data.camera->view),
+                                               MAT_CONST_CAST(sandbox->camera->data.camera->projection));
     scene_render(&sandbox->scene);
     return 1;
+}
+
+void sandbox_set_camera(struct Sandbox* sandbox, struct Node* camNode) {
+    struct Camera* cam;
+    if (camNode->type != NODE_CAMERA) return;
+    cam = camNode->data.camera;
+    sandbox->camera = camNode;
+    camera_set_ratio(((float)sandbox->viewer->width) / ((float)sandbox->viewer->height), cam->projection);
+    camera_buffer_object_update_projection(&sandbox->scene.camera, MAT_CONST_CAST(cam->projection));
+    camera_buffer_object_update_view_and_position(&sandbox->scene.camera, MAT_CONST_CAST(cam->view));
+    uniform_buffer_send(&sandbox->scene.camera);
 }

@@ -1,22 +1,20 @@
 #include <stdio.h>
-#include <string.h>
 
 #include <game/scene/opengex.h>
 
 #include "map.h"
+#include "utils.h"
 
-static char* dirname(char* path) {
-    char* s;
-    if ((s = strrchr(path, '/'))) {
-        *s = 0;
-        return path;
-    }
-    return NULL;
+static void map_init(struct Map* map) {
+    import_init_metadata(&map->metadata);
+    import_init_shared_data(&map->sharedData);
 }
 
 int map_load(struct Map* map, char* mapFilename, struct Scene* scene, struct LightManager* lmgr) {
     FILE* mapFile = NULL;
     int ok = 1, i;
+
+    map_init(map);
 
     if (!(mapFile = fopen(mapFilename, "r"))) {
         fprintf(stderr, "Error: map: could not open file: %s\n", mapFilename);

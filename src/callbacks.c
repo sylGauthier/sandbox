@@ -2,41 +2,43 @@
 
 #include "sandbox.h"
 
-void free_node_callback(struct Node* node) {
-    if (node->type == NODE_GEOMETRY) {
-        free(node->data.geometry);
-    } else if (node->type == NODE_PLIGHT) {
-        free(node->data.plight);
-    } else if (node->type == NODE_DLIGHT) {
-        free(node->data.dlight);
-    }
-    if (node->father) {
-        free(node);
-    }
-}
-
 void resize_callback(struct Viewer* viewer, void* data) {
     struct Sandbox* sandbox = data;
-    struct Camera* activeCam = sandbox->camera;
+    struct Camera* activeCam = sandbox->camera->data.camera;
     glViewport(0, 0, viewer->width, viewer->height);
     camera_set_ratio(((float)viewer->width) / ((float)viewer->height), activeCam->projection);
     camera_buffer_object_update_projection(&sandbox->scene.camera, MAT_CONST_CAST(activeCam->projection));
     uniform_buffer_send(&sandbox->scene.camera);
 }
 
-void update_cam(struct Viewer* viewer, struct Sandbox* sandbox) {
-    camera_set_ratio(((float)viewer->width) / ((float)viewer->height), sandbox->camera->projection);
-    camera_buffer_object_update_projection(&sandbox->scene.camera, MAT_CONST_CAST(sandbox->camera->projection));
-    camera_buffer_object_update_view_and_position(&sandbox->scene.camera, MAT_CONST_CAST(sandbox->camera->view));
-    uniform_buffer_send(&sandbox->scene.camera);
-}
-
 void key_callback(struct Viewer* viewer, int key, int scancode, int action, int mods, void* data) {
     struct Sandbox* sandbox = data;
-    if (action != GLFW_PRESS) return;
+    static int camIdx = 0;
     switch (key) {
         case GLFW_KEY_ESCAPE:
+            if (action != GLFW_PRESS) return;
             sandbox->running = 0;
+            break;
+        case GLFW_KEY_F1:
+            if (action != GLFW_PRESS) return;
+            if (sandbox->camera == sandbox->character.fppov) {
+            sandbox_set_camera(sandbox, sandbox->character.tppov);
+            } else {
+                sandbox_set_camera(sandbox, sandbox->character.fppov);
+            }
+            break;
+        case GLFW_KEY_F2:
+            if (action != GLFW_PRESS) return;
+            if (sandbox->map.metadata.numCameraNodes) {
+                sandbox_set_camera(sandbox, sandbox->map.metadata.cameraNodes[(camIdx++) % sandbox->map.metadata.numCameraNodes]);
+            }
+            break;
+        case GLFW_KEY_W:
+            if (action == GLFW_PRESS) {
+                sandbox->character.action = ACTION_RUN;
+            } else if (action == GLFW_RELEASE) {
+                sandbox->character.action = ACTION_IDLE;
+            }
             break;
             /*
         case GLFW_KEY_LEFT: case GLFW_KEY_UP:
@@ -76,11 +78,10 @@ void update_node(struct Scene* scene, struct Node* n, void* data) {
             }
             break;
         case NODE_CAMERA:
-            /*if (n == sandbox->metadata.cameraNodes[prog->activeCam]) {
+            if (n == sandbox->camera) {
                 camera_buffer_object_update_view(&scene->camera, MAT_CONST_CAST(n->data.camera->view));
                 camera_buffer_object_update_position(&scene->camera, n->position);
             }
-            */
             break;
         default:;
     }

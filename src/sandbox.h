@@ -18,7 +18,7 @@ struct Sandbox {
     struct Scene scene;
     struct LightManager lmgr;
     struct Viewer* viewer;
-    struct Camera* camera;
+    struct Node* camera;
     int running;
 };
 
@@ -26,6 +26,7 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map);
 void sandbox_free(struct Sandbox* sandbox);
 
 int sandbox_run(struct Sandbox* sandbox);
+void sandbox_set_camera(struct Sandbox* sandbox, struct Node* camNode);
 
 
 void free_node_callback(struct Node* node);
