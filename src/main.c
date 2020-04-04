@@ -23,5 +23,6 @@ int main(int argc, char** argv) {
     while (sandbox.running) {
         sandbox_run(&sandbox);
     }
+    sandbox_free(&sandbox);
     return 0;
 }

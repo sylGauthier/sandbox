@@ -5,6 +5,7 @@
 
 int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
     int sceneInit = 0, mapLoad = 0, charLoad = 0;
+    Vec3 ambient = {1, 1, 1};
 
     if (!game_init(GAME_SHADERS_PATH)) {
         fprintf(stderr, "Error: failed to init game library\n");
@@ -25,7 +26,9 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
         sandbox->viewer->callbackData = sandbox;
         sandbox->viewer->resize_callback = resize_callback;
         sandbox->viewer->key_callback = key_callback;
+        sandbox->viewer->cursor_callback = cursor_callback;
         sandbox->viewer->close_callback = close_callback;
+        viewer_set_cursor_mode(sandbox->viewer, VIEWER_CURSOR_DISABLED);
 
         scene_update_nodes(&sandbox->scene, update_node, sandbox);
 
@@ -50,6 +53,7 @@ int sandbox_run(struct Sandbox* sandbox) {
 
     viewer_process_events(sandbox->viewer);
     dt = viewer_next_frame(sandbox->viewer);
+    character_run_action(&sandbox->character, dt);
     character_animate(&sandbox->character, dt);
 
     scene_update_nodes(&sandbox->scene, update_node, sandbox);
@@ -71,4 +75,18 @@ void sandbox_set_camera(struct Sandbox* sandbox, struct Node* camNode) {
     camera_buffer_object_update_projection(&sandbox->scene.camera, MAT_CONST_CAST(cam->projection));
     camera_buffer_object_update_view_and_position(&sandbox->scene.camera, MAT_CONST_CAST(cam->view));
     uniform_buffer_send(&sandbox->scene.camera);
+}
+
+void sandbox_free(struct Sandbox* sandbox) {
+    if (sandbox) {
+        unsigned int i;
+        map_free(&sandbox->map);
+        character_free(&sandbox->character);
+        for (i = 0; i < sandbox->scene.root.nbChildren; i++) {
+            nodes_free(sandbox->scene.root.children[i], imported_node_free);
+        }
+        sandbox->scene.root.nbChildren = 0;
+        scene_free(&sandbox->scene, NULL);
+        viewer_free(sandbox->viewer);
+    }
 }

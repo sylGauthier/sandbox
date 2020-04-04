@@ -22,9 +22,13 @@ struct Character {
 
     enum CharacterAction action;
     struct Clip* actionClips[NB_ACTIONS];
+    struct AnimStack* animStack;
 };
 
 int character_load(struct Character* character, char* charFilename, struct Node* root);
+void character_set_action(struct Character* character, enum CharacterAction action);
+void character_run_action(struct Character* character, double dt);
 int character_animate(struct Character* character, double dt);
+void character_free(struct Character* character);
 
 #endif

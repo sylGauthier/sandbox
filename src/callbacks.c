@@ -35,9 +35,9 @@ void key_callback(struct Viewer* viewer, int key, int scancode, int action, int 
             break;
         case GLFW_KEY_W:
             if (action == GLFW_PRESS) {
-                sandbox->character.action = ACTION_RUN;
+                character_set_action(&sandbox->character, ACTION_RUN);
             } else if (action == GLFW_RELEASE) {
-                sandbox->character.action = ACTION_IDLE;
+                character_set_action(&sandbox->character, ACTION_IDLE);
             }
             break;
             /*
@@ -51,6 +51,14 @@ void key_callback(struct Viewer* viewer, int key, int scancode, int action, int 
             break;
             */
     }
+}
+
+void cursor_callback(struct Viewer* viewer, double xpos, double ypos, double dx, double dy,
+                     int bl, int bm, int br, void* data) {
+    Vec3 axisY = {0, 1, 0};
+    struct Sandbox* sandbox = data;
+
+    node_rotate(sandbox->character.main, axisY, -dx / viewer->width);
 }
 
 void close_callback(struct Viewer* viewer, void* data) {

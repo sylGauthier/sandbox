@@ -12,6 +12,10 @@
 #define CHARACTER_FPPOV_NAME "fppov"
 #define CHARACTER_TPPOV_NAME "tppov"
 
+#define CHARACTER_TRANSITION_TIME 150
+#define CHARACTER_RUN_SPEED 4
+#define CHARACTER_FORWARD {0, 0, 1}
+
 struct CharacterClipEntry {
     const enum CharacterAction action;
     const char* name;
@@ -102,12 +106,49 @@ int character_load(struct Character* character, char* charFilename, struct Node*
     if (charFile) fclose(charFile);
     character_setup_nodes(character->main, character);
     character_setup_clip(character);
+    character->animStack = NULL;
+    character_set_action(character, ACTION_IDLE);
     return ok;
 }
 
-int character_animate(struct Character* character, double dt) {
-    if (character->actionClips[character->action]) {
-        anim_play_clip(character->actionClips[character->action], dt * 1000);
+void character_set_action(struct Character* character, enum CharacterAction action) {
+    if (character->actionClips[action]) {
+        struct Clip* transition;
+        anim_stack_flush(&character->animStack);
+        character->actionClips[character->action]->curPos = 0;
+        character->action = action;
+        if ((transition = anim_make_clip_transition(character->actionClips[action], CHARACTER_TRANSITION_TIME))) {
+            anim_stack_push(&character->animStack, character->actionClips[action], 0);
+            anim_stack_push(&character->animStack, transition, 0);
+        }
     }
+}
+
+void character_run_action(struct Character* character, double dt) {
+    Vec3 axis = CHARACTER_FORWARD;
+    switch (character->action) {
+        case ACTION_IDLE:
+            break;
+        case ACTION_WALK:
+            break;
+        case ACTION_RUN:
+            scale3v(axis, CHARACTER_RUN_SPEED * dt);
+            node_shift(character->main, axis);
+            break;
+        default:
+            break;
+    }
+}
+
+int character_animate(struct Character* character, double dt) {
+    anim_run_stack(&character->animStack, dt * 1000);
     return 1;
+}
+
+void character_free(struct Character* character) {
+    if (character) {
+        anim_stack_flush(&character->animStack);
+        import_free_metadata(&character->metadata);
+        import_free_shared_data(&character->sharedData);
+    }
 }

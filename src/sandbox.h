@@ -33,6 +33,7 @@ void free_node_callback(struct Node* node);
 void resize_callback(struct Viewer* viewer, void* data);
 void update_cam(struct Viewer* viewer, struct Sandbox* prog);
 void key_callback(struct Viewer* viewer, int key, int scancode, int action, int mods, void* data);
+void cursor_callback(struct Viewer* viewer, double, double, double, double, int, int, int, void*);
 void close_callback(struct Viewer* viewer, void* data);
 void update_node(struct Scene* scene, struct Node* n, void* data);
 

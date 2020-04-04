@@ -42,3 +42,10 @@ int map_load(struct Map* map, char* mapFilename, struct Scene* scene, struct Lig
         fclose(mapFile);
     return ok;
 }
+
+void map_free(struct Map* map) {
+    if (map) {
+        import_free_metadata(&map->metadata);
+        import_free_shared_data(&map->sharedData);
+    }
+}

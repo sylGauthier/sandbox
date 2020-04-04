@@ -11,5 +11,6 @@ struct Map {
 };
 
 int map_load(struct Map* map, char* mapFilename, struct Scene* scene, struct LightManager* lmgr);
+void map_free(struct Map* map);
 
 #endif
