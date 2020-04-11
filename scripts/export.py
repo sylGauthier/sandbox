@@ -10,9 +10,14 @@ filename=argv[0] + "/" + filename
 
 for i in bpy.data.objects:
     bpy.context.scene.objects.active = i
+    skinned = False
     for mod in i.modifiers:
-        if isinstance(mod, bpy.types.SubsurfModifier) or isinstance(mod, bpy.types.MirrorModifier):
-            bpy.ops.object.modifier_apply(modifier=mod.name)
+        if isinstance(mod, bpy.types.ArmatureModifier):
+            skinned = True
+    if skinned:
+        for mod in i.modifiers:
+            if isinstance(mod, bpy.types.SubsurfModifier) or isinstance(mod, bpy.types.MirrorModifier):
+                bpy.ops.object.modifier_apply(modifier=mod.name)
 
 win=bpy.context.window_manager.windows[0]
 area=win.screen.areas[0]
