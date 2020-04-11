@@ -32,10 +32,12 @@ int map_load(struct Map* map, char* mapFilename, struct Scene* scene, struct Lig
                 case NODE_PLIGHT:
                     light_mgr_add_plight_node(lmgr, n);
                     break;
+                case NODE_SLIGHT:
+                    light_mgr_add_slight_node(lmgr, n);
+                    break;
                 default:;
             }
         }
-        light_mgr_update_all(lmgr);
         printf("%d lights - %d cameras\n", map->metadata.numLightNodes, map->metadata.numCameraNodes);
     }
     if (mapFile)

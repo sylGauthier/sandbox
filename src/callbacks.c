@@ -85,6 +85,13 @@ void update_node(struct Scene* scene, struct Node* n, void* data) {
                 }
             }
             break;
+        case NODE_SLIGHT:
+            for (i = 0; i < sandbox->lmgr.numSpotLights; i++) {
+                if (n == sandbox->lmgr.slights[i]) {
+                    lights_buffer_object_update_slight(&scene->lights, n->data.slight, i);
+                }
+            }
+            break;
         case NODE_CAMERA:
             if (n == sandbox->camera) {
                 camera_buffer_object_update_view(&scene->camera, MAT_CONST_CAST(n->data.camera->view));
