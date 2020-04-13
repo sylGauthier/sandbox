@@ -94,8 +94,7 @@ void update_node(struct Scene* scene, struct Node* n, void* data) {
             break;
         case NODE_CAMERA:
             if (n == sandbox->camera) {
-                camera_buffer_object_update_view(&scene->camera, MAT_CONST_CAST(n->data.camera->view));
-                camera_buffer_object_update_position(&scene->camera, n->position);
+                camera_buffer_object_update_view_and_position(&scene->camera, MAT_CONST_CAST(n->data.camera->view));
             }
             break;
         default:;

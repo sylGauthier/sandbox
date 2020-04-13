@@ -10,10 +10,12 @@
 
 #include "map.h"
 #include "character.h"
+#include "phys_octree.h"
 
 struct Sandbox {
     struct Map map;
     struct Character character;
+    struct PhysOctree octree;
 
     struct Scene scene;
     struct LightManager lmgr;

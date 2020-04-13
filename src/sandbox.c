@@ -1,11 +1,40 @@
 #include <string.h>
+#include <math.h>
+#include <stdlib.h>
 
 #include "sandbox.h"
 #include "utils.h"
+#include "render_octree.h"
+
+static int octree_add_objects(struct PhysOctree* octree, struct PhysObject** objects, unsigned int numObjects) {
+    unsigned int i;
+    for (i = 0; i < numObjects; i++) {
+        if (!phys_octree_object_add(octree, objects[i])) {
+            fprintf(stderr, "Error: failed to add object to octree\n");
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static int setup_physic(struct Sandbox* sandbox) {
+    unsigned int i;
+    float size = 0.;
+    struct Node* root = &sandbox->scene.root;
+
+    for (i = 0; i < 6; i++) {
+        size = fabs(root->position[i%3] - root->boundingBox[i / 3][i % 3]) > size ?
+               fabs(root->position[i%3] - root->boundingBox[i / 3][i % 3]) : size;
+    }
+    if (!phys_octree_init(&sandbox->octree, root->position, size)) return 0;
+    if (!octree_add_objects(&sandbox->octree, sandbox->map.objects, sandbox->map.numObjects)) return 0;
+    /* phys_octree_print(&sandbox->octree); */
+    return 1;
+}
 
 int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
     int sceneInit = 0, mapLoad = 0, charLoad = 0;
-    Vec3 ambient = {1, 1, 1};
+    Vec3 ambient = {0.03, 0.03, 0.04};
 
     if (!game_init(GAME_SHADERS_PATH)) {
         fprintf(stderr, "Error: failed to init game library\n");
@@ -33,11 +62,15 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
         scene_update_nodes(&sandbox->scene, update_node, sandbox);
 
         sandbox_set_camera(sandbox, sandbox->map.metadata.cameraNodes[0]);
+        light_mgr_set_ambient(&sandbox->lmgr, ambient);
 
         uniform_buffer_send(&sandbox->scene.lights);
         uniform_buffer_send(&sandbox->scene.camera);
         glfwSwapInterval(1);
-        return 1;
+        if (setup_physic(sandbox)) {
+            render_octree_init();
+            return 1;
+        }
     }
     if (sandbox->viewer) {
         viewer_free(sandbox->viewer);
@@ -63,6 +96,7 @@ int sandbox_run(struct Sandbox* sandbox) {
     scene_update_render_queue(&sandbox->scene, MAT_CONST_CAST(sandbox->camera->data.camera->view),
                                                MAT_CONST_CAST(sandbox->camera->data.camera->projection));
     scene_render(&sandbox->scene);
+    render_octree(&sandbox->octree);
     return 1;
 }
 
@@ -86,6 +120,7 @@ void sandbox_free(struct Sandbox* sandbox) {
             nodes_free(sandbox->scene.root.children[i], imported_node_free);
         }
         sandbox->scene.root.nbChildren = 0;
+        render_octree_cleanup();
         scene_free(&sandbox->scene, NULL);
         viewer_free(sandbox->viewer);
     }
