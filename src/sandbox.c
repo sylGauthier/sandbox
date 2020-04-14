@@ -28,6 +28,8 @@ static int setup_physic(struct Sandbox* sandbox) {
     }
     if (!phys_octree_init(&sandbox->octree, root->position, size)) return 0;
     if (!octree_add_objects(&sandbox->octree, sandbox->map.objects, sandbox->map.numObjects)) return 0;
+
+    if (!character_setup_physic(&sandbox->character, &sandbox->octree)) return 0;
     /* phys_octree_print(&sandbox->octree); */
     return 1;
 }

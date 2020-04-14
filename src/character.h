@@ -4,6 +4,8 @@
 #include <game/scene/skin.h>
 #include <game/animation/animation.h>
 
+#include "phys_octree.h"
+
 enum CharacterAction {
     ACTION_IDLE = 0,
     ACTION_WALK,
@@ -23,9 +25,15 @@ struct Character {
     enum CharacterAction action;
     struct Clip* actionClips[NB_ACTIONS];
     struct AnimStack* animStack;
+
+    struct PhysObject* bodySphere;
+    Vec3 bodySphereOffset;
+    struct PhysOctree* octree;
 };
 
 int character_load(struct Character* character, char* charFilename, struct Node* root);
+int character_setup_physic(struct Character* character, struct PhysOctree* octree);
+
 void character_set_action(struct Character* character, enum CharacterAction action);
 void character_run_action(struct Character* character, double dt);
 int character_animate(struct Character* character, double dt);

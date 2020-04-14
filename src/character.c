@@ -45,6 +45,10 @@ static int character_init(struct Character* character) {
     character->tppov = NULL;
     character->action = ACTION_IDLE;
     memset(character->actionClips, 0, sizeof(character->actionClips));
+
+    character->bodySphere = NULL;
+    memcpy(character->bodySphereOffset, characterBodySphereOffset, sizeof(Vec3));
+    character->octree = NULL;
     return 1;
 }
 
@@ -111,6 +115,16 @@ int character_load(struct Character* character, char* charFilename, struct Node*
     return ok;
 }
 
+int character_setup_physic(struct Character* character, struct PhysOctree* octree) {
+    Vec3 spherePos;
+    character->octree = octree;
+    if (!(character->bodySphere = phys_object_new_sphere(0.25))) return 0;
+    add3v(spherePos, character->main->position, character->bodySphereOffset);
+    memcpy(character->bodySphere->pos, spherePos, sizeof(Vec3));
+    if (!(phys_octree_object_add(octree, character->bodySphere))) return 0;
+    return 1;
+}
+
 void character_set_action(struct Character* character, enum CharacterAction action) {
     if (character->actionClips[action]) {
         struct Clip* transition;
@@ -124,6 +138,13 @@ void character_set_action(struct Character* character, enum CharacterAction acti
     }
 }
 
+static int character_move(struct Character* character, Vec3 dir) {
+    Vec3 spherePos;
+    node_shift(character->main, dir);
+    add3v(spherePos, character->main->position, character->bodySphereOffset);
+    return phys_octree_object_move(character->octree, character->bodySphere, spherePos);
+}
+
 void character_run_action(struct Character* character, double dt) {
     Vec3 axis = CHARACTER_FORWARD;
     switch (character->action) {
@@ -133,7 +154,7 @@ void character_run_action(struct Character* character, double dt) {
             break;
         case ACTION_RUN:
             scale3v(axis, CHARACTER_RUN_SPEED * dt);
-            node_shift(character->main, axis);
+            character_move(character, axis);
             break;
         default:
             break;
@@ -150,5 +171,6 @@ void character_free(struct Character* character) {
         anim_stack_flush(&character->animStack);
         import_free_metadata(&character->metadata);
         import_free_shared_data(&character->sharedData);
+        phys_object_free(character->bodySphere);
     }
 }
