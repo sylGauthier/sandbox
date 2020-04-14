@@ -15,7 +15,7 @@ void phys_object_init(struct PhysObject* object) {
     object->type = PHYS_EMPTY;
 }
 
-static void update_object_transform(struct PhysObject* obj) {
+void phys_object_update_transform(struct PhysObject* obj) {
     quaternion_to_mat4(obj->transform, obj->orientation);
     scale3v(obj->transform[0], obj->scale[0]);
     scale3v(obj->transform[1], obj->scale[1]);
@@ -101,7 +101,7 @@ void phys_object_set_orientation(struct PhysObject* obj, const Quaternion orient
 }
 
 void phys_object_update(struct PhysObject* obj) {
-    update_object_transform(obj);
+    phys_object_update_transform(obj);
     phys_object_update_aabb(obj);
 }
 

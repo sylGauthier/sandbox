@@ -3,7 +3,7 @@
 #ifndef OCTREE_H
 #define OCTREE_H
 
-#define PHYS_OCTREE_MAX_DEPTH 4
+#define PHYS_OCTREE_MAX_DEPTH 6
 
 struct PhysObjectList {
     struct PhysObject* obj;
@@ -26,6 +26,7 @@ struct PhysOctree {
 
 int phys_octree_init(struct PhysOctree* octree, Vec3 pos, float radius);
 int phys_octree_object_add(struct PhysOctree* octree, struct PhysObject* object);
+int phys_octree_object_move(struct PhysOctree* octree, struct PhysObject* object, Vec3 newPos);
 struct PhysObject* phys_octree_object_collide(struct PhysOctree* octree, struct PhysObject* object);
 
 void phys_octree_print(struct PhysOctree* octree);

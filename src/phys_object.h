@@ -31,6 +31,8 @@ void phys_object_set_scale(struct PhysObject* obj, const Vec3 scale);
 void phys_object_set_pos(struct PhysObject* obj, const Vec3 pos);
 void phys_object_set_orientation(struct PhysObject* obj, const Quaternion orientation);
 
+void phys_object_update_transform(struct PhysObject* obj);
+void phys_object_update_aabb(struct PhysObject* obj);
 void phys_object_update(struct PhysObject* obj);
 
 void phys_object_free(struct PhysObject* object);

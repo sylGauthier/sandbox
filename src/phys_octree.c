@@ -70,6 +70,23 @@ static struct PhysObject* object_list_pop(struct PhysObjectList** list) {
     return ret;
 }
 
+static int object_list_delete(struct PhysObjectList** list, struct PhysObject* obj) {
+    struct PhysObjectList* prev = NULL;
+    struct PhysObjectList* cur = *list;
+    while (cur && cur->obj != obj) {
+        prev = cur;
+        cur = cur->tail;
+    }
+    if (!cur) return 0;
+    if (!prev) {
+        object_list_pop(list);
+        return 1;
+    }
+    prev->tail = cur->tail;
+    free(cur);
+    return 1;
+}
+
 static struct PhysOctreeCell* new_octree_cell(Vec3 pos, float radius, unsigned int depth) {
     struct PhysOctreeCell* ret;
 
@@ -86,16 +103,16 @@ static struct PhysOctreeCell* new_octree_cell(Vec3 pos, float radius, unsigned i
     return ret;
 }
 
-static int cell_object_collide(struct PhysOctreeCell* cell, struct PhysObject* object) {
-    return fabs(cell->pos[0] - object->pos[0]) <= cell->radius + object->aabbDimensions[0]
-        && fabs(cell->pos[1] - object->pos[1]) <= cell->radius + object->aabbDimensions[1]
-        && fabs(cell->pos[2] - object->pos[2]) <= cell->radius + object->aabbDimensions[2];
+static int cell_object_collide(struct PhysOctreeCell* cell, Vec3 pos, Vec3 dims) {
+    return fabs(cell->pos[0] - pos[0]) <= cell->radius + dims[0]
+        && fabs(cell->pos[1] - pos[1]) <= cell->radius + dims[1]
+        && fabs(cell->pos[2] - pos[2]) <= cell->radius + dims[2];
 }
 
-static int cell_object_cover(struct PhysOctreeCell* cell, struct PhysObject* object) {
-    return fabs(cell->pos[0] - object->pos[0]) + object->aabbDimensions[0] <= cell->radius
-        && fabs(cell->pos[1] - object->pos[1]) + object->aabbDimensions[1] <= cell->radius
-        && fabs(cell->pos[2] - object->pos[2]) + object->aabbDimensions[2] <= cell->radius;
+static int cell_object_cover(struct PhysOctreeCell* cell, Vec3 pos, Vec3 dims) {
+    return fabs(cell->pos[0] - pos[0]) + dims[0] <= cell->radius
+        && fabs(cell->pos[1] - pos[1]) + dims[1] <= cell->radius
+        && fabs(cell->pos[2] - pos[2]) + dims[2] <= cell->radius;
 }
 
 static int cell_add_object(struct PhysOctreeCell* cell, struct PhysObject* object);
@@ -104,13 +121,16 @@ static int cell_add_object(struct PhysOctreeCell* cell, struct PhysObject* objec
 static int cell_split(struct PhysOctreeCell* cell) {
     struct PhysObject* obj;
     int i;
-    obj = object_list_pop(&cell->objects);
+    if (!(obj = object_list_pop(&cell->objects))) {
+        fprintf(stderr, "Error: cell_split: inconsistent state\n");
+        return 0;
+    }
     for (i = 0; i < 8; i++) {
         Vec3 pos;
         SUB_CELL_POS(pos, cell->pos, cell->radius / 2, i);
         if (!(cell->children[i] = new_octree_cell(pos, cell->radius / 2, cell->depth + 1))) return 0;
         cell->children[i]->father = cell;
-        if (cell_object_collide(cell->children[i], obj)
+        if (cell_object_collide(cell->children[i], obj->pos, obj->aabbDimensions)
                 && !cell_add_object(cell->children[i], obj)) return 0;
     }
     return 1;
@@ -127,15 +147,88 @@ static int cell_add_object(struct PhysOctreeCell* cell, struct PhysObject* objec
     }
     cell->numObjects++;
     for (i = 0; i < 8; i++) {
-        if (cell_object_collide(cell->children[i], object) && !cell_add_object(cell->children[i], object)) {
-            return 0;
+        if (cell_object_collide(cell->children[i], object->pos, object->aabbDimensions)) {
+            if (!cell_add_object(cell->children[i], object)) {
+                return 0;
+            }
+            if (cell_object_cover(cell->children[i], object->pos, object->aabbDimensions)) {
+                return 1;
+            }
         }
     }
     return 1;
 }
 
+static int cell_remove_object(struct PhysOctreeCell* cell, struct PhysObject* object) {
+    cell->numObjects--;
+    if (cell->depth >= PHYS_OCTREE_MAX_DEPTH) {
+        object_list_delete(&cell->objects, object);
+        return 1;
+    } else if (cell->numObjects == 0) {
+        object_list_pop(&cell->objects);
+        return 1;
+    } else if (cell->numObjects == 1) {
+        unsigned int i;
+        struct PhysObject* remain = NULL;
+        for (i = 0; i < 8; i ++) {
+            if (cell->children[i]->numObjects == 1) {
+                remain = object_list_pop(&cell->children[i]->objects);
+                if (!cell->objects && remain != object) {
+                    if (!object_list_push(&cell->objects, remain)) {
+                        return 0;
+                    }
+                }
+            } else if (cell->children[i]->numObjects == 2) {
+                cell_remove_object(cell->children[i], object);
+                remain = object_list_pop(&cell->children[i]->objects);
+                if (!cell->objects && remain != object) {
+                    if (!object_list_push(&cell->objects, remain)) {
+                        return 0;
+                    }
+                }
+            }
+            free(cell->children[i]);
+            cell->children[i] = NULL;
+        }
+    } else {
+        unsigned int i;
+        for (i = 0; i < 8; i++) {
+            if (!cell->children[i]) printf("%d\n", cell->numObjects);
+            if (cell_object_collide(cell->children[i], object->pos, object->aabbDimensions)
+                    && !cell_remove_object(cell->children[i], object)) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+/* static int cell_move_object(struct PhysOctreeCell* cell, struct PhysObject* object, Vec3 prevPos) {
+    char wasHere, isHere;
+    wasHere = cell_object_collide(cell, prevPos, object->aabbDimensions);
+    isHere = cell_object_collide(cell, object->pos, object->aabbDimensions);
+
+    if (!wasHere && !isHere) {
+        return 1;
+    } else if (!wasHere && isHere) {
+        return cell_add_object(cell, object);
+    } else if (wasHere && !isHere) {
+        return cell_remove_object(cell, object);
+    } else if (wasHere && isHere) {
+        if (cell->children[0]) {
+            unsigned int i;
+            for (i = 0; i < 8; i++) {
+                if (!cell_move_object(cell->children[i], object, prevPos)) {
+                    return 0;
+                }
+            }
+        }
+    }
+    return 1;
+} */
+
 int phys_octree_object_add(struct PhysOctree* octree, struct PhysObject* object) {
-    if (!cell_object_cover(octree->root, object)) {
+    if (!cell_object_cover(octree->root, object->pos, object->aabbDimensions)) {
         fprintf(stderr, "Error: object outside of octree\n");
         printf("Cell pos:\n");
         print3v(octree->root->pos);
@@ -148,6 +241,21 @@ int phys_octree_object_add(struct PhysOctree* octree, struct PhysObject* object)
     }
 
     return cell_add_object(octree->root, object);
+}
+
+int phys_octree_object_move(struct PhysOctree* octree, struct PhysObject* object, Vec3 newPos) {
+    if (!cell_object_cover(octree->root, newPos, object->aabbDimensions)) {
+        return 0;
+    }
+    if (!cell_remove_object(octree->root, object)) {
+        return 0;
+    }
+    memcpy(object->pos, newPos, sizeof(Vec3));
+    if (cell_add_object(octree->root, object)) {
+        phys_object_update_transform(object);
+        return 1;
+    }
+    return 0;
 }
 
 int phys_octree_init(struct PhysOctree* octree, Vec3 pos, float radius) {
