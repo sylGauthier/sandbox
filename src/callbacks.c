@@ -40,6 +40,10 @@ void key_callback(struct Viewer* viewer, int key, int scancode, int action, int 
                 character_set_action(&sandbox->character, ACTION_IDLE);
             }
             break;
+        case GLFW_KEY_SPACE:
+            if (action != GLFW_PRESS) return;
+            phys_octree_print(&sandbox->octree);
+            break;
             /*
         case GLFW_KEY_LEFT: case GLFW_KEY_UP:
             prog->activeCam = (prog->activeCam + prog->metadata.nbCameraNodes - 1) % prog->metadata.nbCameraNodes;

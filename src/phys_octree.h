@@ -1,19 +1,15 @@
-#include "phys_object.h"
-
 #ifndef OCTREE_H
 #define OCTREE_H
 
-#define PHYS_OCTREE_MAX_DEPTH 6
+#include "phys_object.h"
+#include "list.h"
 
-struct PhysObjectList {
-    struct PhysObject* obj;
-    struct PhysObjectList* tail;
-};
+#define PHYS_OCTREE_MAX_DEPTH 6
 
 struct PhysOctreeCell {
     struct PhysOctreeCell* children[8];
     struct PhysOctreeCell* father;
-    struct PhysObjectList* objects;
+    struct List* objects;
     unsigned int numObjects;
     unsigned int depth;
     Vec3 pos;

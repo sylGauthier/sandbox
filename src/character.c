@@ -7,14 +7,15 @@
 #include "character.h"
 #include "utils.h"
 
-#define CHARACTER_NODE_NAME "character"
-#define CHARACTER_SKELETON_NAME "skeleton"
-#define CHARACTER_FPPOV_NAME "fppov"
-#define CHARACTER_TPPOV_NAME "tppov"
+#define CHARACTER_NODE_NAME             "character"
+#define CHARACTER_SKELETON_NAME         "skeleton"
+#define CHARACTER_FPPOV_NAME            "fppov"
+#define CHARACTER_TPPOV_NAME            "tppov"
 
-#define CHARACTER_TRANSITION_TIME 150
-#define CHARACTER_RUN_SPEED 4
-#define CHARACTER_FORWARD {0, 0, 1}
+#define CHARACTER_TRANSITION_TIME       0.150
+#define CHARACTER_RUN_SPEED             4
+#define CHARACTER_FORWARD               {0, 0, 1}
+Vec3 characterBodySphereOffset =        {0, 1, 0};
 
 struct CharacterClipEntry {
     const enum CharacterAction action;
@@ -162,7 +163,7 @@ void character_run_action(struct Character* character, double dt) {
 }
 
 int character_animate(struct Character* character, double dt) {
-    anim_run_stack(&character->animStack, dt * 1000);
+    anim_run_stack(&character->animStack, dt);
     return 1;
 }
 

@@ -2,7 +2,8 @@
 #define CHARACTER_H
 
 #include <game/scene/skin.h>
-#include <game/animation/animation.h>
+#include <game/animation/transition.h>
+#include <game/animation/play.h>
 
 #include "phys_octree.h"
 

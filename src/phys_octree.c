@@ -38,55 +38,6 @@ void phys_octree_print(struct PhysOctree* octree) {
     print_cell(octree->root);
 }
 
-static struct PhysObjectList* object_list_new() {
-    struct PhysObjectList* ret;
-    if ((ret = malloc(sizeof(*ret)))) {
-        ret->obj = NULL;
-        ret->tail = NULL;
-    }
-    return ret;
-}
-
-static int object_list_push(struct PhysObjectList** list, struct PhysObject* obj) {
-    struct PhysObjectList* newHead;
-    if ((newHead = object_list_new())) {
-        newHead->obj = obj;
-        newHead->tail = *list;
-        *list = newHead;
-        return 1;
-    }
-    return 0;
-}
-
-static struct PhysObject* object_list_pop(struct PhysObjectList** list) {
-    struct PhysObject* ret = NULL;
-    struct PhysObjectList* tmp;
-    if (*list) {
-        tmp = *list;
-        ret = tmp->obj;
-        *list = tmp->tail;
-        free(tmp);
-    }
-    return ret;
-}
-
-static int object_list_delete(struct PhysObjectList** list, struct PhysObject* obj) {
-    struct PhysObjectList* prev = NULL;
-    struct PhysObjectList* cur = *list;
-    while (cur && cur->obj != obj) {
-        prev = cur;
-        cur = cur->tail;
-    }
-    if (!cur) return 0;
-    if (!prev) {
-        object_list_pop(list);
-        return 1;
-    }
-    prev->tail = cur->tail;
-    free(cur);
-    return 1;
-}
-
 static struct PhysOctreeCell* new_octree_cell(Vec3 pos, float radius, unsigned int depth) {
     struct PhysOctreeCell* ret;
 
@@ -121,7 +72,7 @@ static int cell_add_object(struct PhysOctreeCell* cell, struct PhysObject* objec
 static int cell_split(struct PhysOctreeCell* cell) {
     struct PhysObject* obj;
     int i;
-    if (!(obj = object_list_pop(&cell->objects))) {
+    if (!(obj = list_pop(&cell->objects))) {
         fprintf(stderr, "Error: cell_split: inconsistent state\n");
         return 0;
     }
@@ -139,7 +90,7 @@ static int cell_split(struct PhysOctreeCell* cell) {
 static int cell_add_object(struct PhysOctreeCell* cell, struct PhysObject* object) {
     unsigned int i;
     if (cell->numObjects == 0 || cell->depth >= PHYS_OCTREE_MAX_DEPTH) {
-        if (!object_list_push(&cell->objects, object)) return 0;
+        if (!list_push(&cell->objects, object)) return 0;
         cell->numObjects++;
         return 1;
     } else if (cell->numObjects == 1) {
@@ -162,27 +113,27 @@ static int cell_add_object(struct PhysOctreeCell* cell, struct PhysObject* objec
 static int cell_remove_object(struct PhysOctreeCell* cell, struct PhysObject* object) {
     cell->numObjects--;
     if (cell->depth >= PHYS_OCTREE_MAX_DEPTH) {
-        object_list_delete(&cell->objects, object);
+        list_delete(&cell->objects, object);
         return 1;
     } else if (cell->numObjects == 0) {
-        object_list_pop(&cell->objects);
+        list_pop(&cell->objects);
         return 1;
     } else if (cell->numObjects == 1) {
         unsigned int i;
         struct PhysObject* remain = NULL;
         for (i = 0; i < 8; i ++) {
             if (cell->children[i]->numObjects == 1) {
-                remain = object_list_pop(&cell->children[i]->objects);
+                remain = list_pop(&cell->children[i]->objects);
                 if (!cell->objects && remain != object) {
-                    if (!object_list_push(&cell->objects, remain)) {
+                    if (!list_push(&cell->objects, remain)) {
                         return 0;
                     }
                 }
             } else if (cell->children[i]->numObjects == 2) {
                 cell_remove_object(cell->children[i], object);
-                remain = object_list_pop(&cell->children[i]->objects);
+                remain = list_pop(&cell->children[i]->objects);
                 if (!cell->objects && remain != object) {
-                    if (!object_list_push(&cell->objects, remain)) {
+                    if (!list_push(&cell->objects, remain)) {
                         return 0;
                     }
                 }
