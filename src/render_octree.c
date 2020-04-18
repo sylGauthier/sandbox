@@ -49,7 +49,7 @@ static void render_cell(struct PhysOctreeCell* cell, struct Material* mat, struc
     set_color(mat, 0, 1, 0.2);
     vertex_array_render(arr);
     if (cell->objects) {
-        struct PhysObjectList* cur = cell->objects;
+        struct List* cur = cell->objects;
         while (cur) {
             render_phys_object(cur->obj, mat, arr);
             cur = cur->tail;
@@ -68,7 +68,8 @@ void render_octree_init() {
     make_box(&renderOctree.box, 1., 1., 1.);
     vertex_array_gen(&renderOctree.box, &renderOctree.arr);
     renderOctree.params = solid_material_params_new();
-    renderOctree.mat = solid_material_new(renderOctree.box.flags, renderOctree.params, GL_LINE);
+    renderOctree.mat = solid_material_new(renderOctree.box.flags, renderOctree.params);
+    renderOctree.mat->polygonMode = GL_LINE;
 }
 
 void render_octree_cleanup() {
