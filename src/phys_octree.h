@@ -23,7 +23,10 @@ struct PhysOctree {
 int phys_octree_init(struct PhysOctree* octree, Vec3 pos, float radius);
 int phys_octree_object_add(struct PhysOctree* octree, struct PhysObject* object);
 int phys_octree_object_move(struct PhysOctree* octree, struct PhysObject* object, Vec3 newPos);
-struct PhysObject* phys_octree_object_collide(struct PhysOctree* octree, struct PhysObject* object);
+int phys_octree_object_translate(struct PhysOctree* octree, struct PhysObject* object, Vec3 dir);
+
+int phys_cell_object_collide(struct PhysOctreeCell* cell, Vec3 pos, Vec3 dims);
+int phys_cell_object_cover(struct PhysOctreeCell* cell, Vec3 pos, Vec3 dims);
 
 void phys_octree_print(struct PhysOctree* octree);
 

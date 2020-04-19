@@ -5,6 +5,7 @@
 #include <game/scene/opengex.h>
 
 #include "character.h"
+#include "phys_solver.h"
 #include "utils.h"
 
 #define CHARACTER_NODE_NAME             "character"
@@ -140,10 +141,16 @@ void character_set_action(struct Character* character, enum CharacterAction acti
 }
 
 static int character_move(struct Character* character, Vec3 dir) {
-    Vec3 spherePos;
-    node_shift(character->main, dir);
-    add3v(spherePos, character->main->position, character->bodySphereOffset);
-    return phys_octree_object_move(character->octree, character->bodySphere, spherePos);
+    Vec3 globalDir, correction, finalDir;
+    quaternion_compose(globalDir, character->main->orientation, dir);
+    phys_octree_object_translate(character->octree, character->bodySphere, globalDir);
+    if (phys_solve_object_move(character->octree, character->bodySphere, correction)) {
+        correction[1] = 0;
+        phys_octree_object_translate(character->octree, character->bodySphere, correction);
+    }
+    add3v(finalDir, globalDir, correction);
+    node_translate(character->main, finalDir);
+    return 1;
 }
 
 void character_run_action(struct Character* character, double dt) {

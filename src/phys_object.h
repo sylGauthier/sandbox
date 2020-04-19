@@ -37,6 +37,6 @@ void phys_object_update(struct PhysObject* obj);
 
 void phys_object_free(struct PhysObject* object);
 
-int phys_object_collide(struct PhysObject* obj1, struct PhysObject* obj2);
+int phys_object_collide(struct PhysObject* obj1, struct PhysObject* obj2, Vec3 penetration);
 
 #endif
