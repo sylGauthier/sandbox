@@ -34,6 +34,14 @@ void* list_pop(struct List** list) {
     return ret;
 }
 
+struct List* list_find(struct List* list, void* obj) {
+    struct List* cur = list;
+    while (cur && cur->obj != obj) {
+        cur = cur->tail;
+    }
+    return cur;
+}
+
 int list_delete(struct List** list, void* obj) {
     struct List* prev = NULL;
     struct List* cur = *list;
