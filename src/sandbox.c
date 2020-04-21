@@ -53,6 +53,7 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
         fprintf(stderr, "Error: failed to load character\n");
     } else {
         sandbox->running = 1;
+        sandbox->renderOctreeOn = 0;
 
         sandbox->viewer->callbackData = sandbox;
         sandbox->viewer->resize_callback = resize_callback;
@@ -98,7 +99,9 @@ int sandbox_run(struct Sandbox* sandbox) {
     scene_update_render_queue(&sandbox->scene, MAT_CONST_CAST(sandbox->camera->data.camera->view),
                                                MAT_CONST_CAST(sandbox->camera->data.camera->projection));
     scene_render(&sandbox->scene);
-    render_octree(&sandbox->octree);
+    if (sandbox->renderOctreeOn) {
+        render_octree(&sandbox->octree);
+    }
     return 1;
 }
 

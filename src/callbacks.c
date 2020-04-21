@@ -33,6 +33,10 @@ void key_callback(struct Viewer* viewer, int key, int scancode, int action, int 
                 sandbox_set_camera(sandbox, sandbox->map.metadata.cameraNodes[(camIdx++) % sandbox->map.metadata.numCameraNodes]);
             }
             break;
+        case GLFW_KEY_F3:
+            if (action != GLFW_PRESS) return;
+            sandbox->renderOctreeOn = !sandbox->renderOctreeOn;
+            break;
         case GLFW_KEY_W:
             if (action == GLFW_PRESS) {
                 character_set_action(&sandbox->character, ACTION_RUN);

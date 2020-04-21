@@ -22,6 +22,7 @@ struct Sandbox {
     struct Viewer* viewer;
     struct Node* camera;
     int running;
+    char renderOctreeOn;
 };
 
 int sandbox_load(struct Sandbox* sandbox, char* character, char* map);
