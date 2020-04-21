@@ -7,7 +7,6 @@
 struct PhysObject {
     Vec3 aabbDimensions;
     Vec3 pos;
-    Vec3 scale;
     Quaternion orientation;
     Mat4 transform;
     char dynamic;

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <float.h>
 #include <math.h>
@@ -8,7 +9,6 @@
 void phys_object_init(struct PhysObject* object) {
     zero3v(object->aabbDimensions);
     zero3v(object->pos);
-    zero3v(object->scale);
     quaternion_load_id(object->orientation);
     load_id4(object->transform);
     object->dynamic = 0;
@@ -17,9 +17,6 @@ void phys_object_init(struct PhysObject* object) {
 
 void phys_object_update_transform(struct PhysObject* obj) {
     quaternion_to_mat4(obj->transform, obj->orientation);
-    scale3v(obj->transform[0], obj->scale[0]);
-    scale3v(obj->transform[1], obj->scale[1]);
-    scale3v(obj->transform[2], obj->scale[2]);
     memcpy(obj->transform[3], obj->pos, sizeof(Vec3));
 }
 
@@ -89,7 +86,19 @@ struct PhysObject* phys_object_new_sphere(float radius) {
 }
 
 void phys_object_set_scale(struct PhysObject* obj, const Vec3 scale) {
-    memcpy(obj->scale, scale, sizeof(Vec3));
+    switch (obj->type) {
+        case PHYS_EMPTY:
+            break;
+        case PHYS_BOX:
+            obj->data.dimensions[0] *= scale[0];
+            obj->data.dimensions[1] *= scale[1];
+            obj->data.dimensions[2] *= scale[2];
+            update_box_aabb(obj);
+            break;
+        case PHYS_SPHERE:
+            fprintf(stderr, "Warning: phys_object_set_scale: rescaling a sphere is not supported\n");
+            break;
+    }
 }
 
 void phys_object_set_pos(struct PhysObject* obj, const Vec3 pos) {
