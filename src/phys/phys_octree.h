@@ -2,7 +2,7 @@
 #define OCTREE_H
 
 #include "phys_object.h"
-#include "list.h"
+#include "../utils/list.h"
 
 #define PHYS_OCTREE_MAX_DEPTH 6
 

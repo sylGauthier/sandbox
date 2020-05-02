@@ -5,7 +5,7 @@ CFLAGS += -DOPENGEX=1
 CFLAGS += $(shell pkg-config --cflags $(DEPS)) -I.
 LDFLAGS += $(shell pkg-config --libs $(DEPS)) -lm
 
-OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c))
+OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c src/phys/*.c src/utils/*.c))
 
 .PHONY: all
 all: sandbox

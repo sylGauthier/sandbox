@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "sandbox.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "render_octree.h"
 
 static int octree_add_objects(struct PhysOctree* octree, struct PhysObject** objects, unsigned int numObjects) {

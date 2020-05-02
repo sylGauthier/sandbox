@@ -5,7 +5,7 @@
 #include <game/animation/transition.h>
 #include <game/animation/play.h>
 
-#include "phys_octree.h"
+#include "phys/phys_octree.h"
 
 enum CharacterAction {
     ACTION_IDLE = 0,

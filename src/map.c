@@ -6,7 +6,7 @@
 #include <game/scene/opengex.h>
 
 #include "map.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 static void map_init(struct Map* map) {
     import_init_metadata(&map->metadata);

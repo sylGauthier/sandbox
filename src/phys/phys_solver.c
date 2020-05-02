@@ -1,7 +1,6 @@
 #include <stdlib.h>
 
 #include "phys_solver.h"
-#include "list.h"
 
 struct Collision {
     struct PhysObject* object;

@@ -10,7 +10,7 @@
 
 #include "map.h"
 #include "character.h"
-#include "phys_octree.h"
+#include "phys/phys_octree.h"
 
 struct Sandbox {
     struct Map map;

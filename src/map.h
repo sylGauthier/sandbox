@@ -4,7 +4,7 @@
 #include <game/scene/scene.h>
 
 #include "light_manager.h"
-#include "phys_object.h"
+#include "phys/phys_object.h"
 
 struct Map {
     struct ImportMetadata metadata;

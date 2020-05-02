@@ -5,8 +5,8 @@
 #include <game/scene/opengex.h>
 
 #include "character.h"
-#include "phys_solver.h"
-#include "utils.h"
+#include "phys/phys_solver.h"
+#include "utils/utils.h"
 
 #define CHARACTER_NODE_NAME             "character"
 #define CHARACTER_SKELETON_NAME         "skeleton"
