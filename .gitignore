@@ -2,3 +2,4 @@ data/blends
 data/ogex
 data/textures
 sandbox
+*.o
