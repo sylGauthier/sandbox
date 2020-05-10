@@ -1,6 +1,6 @@
-BLEND_SOURCE="syg@voxnumeri.pw:/home/syg/storage/sandbox/blends"
-TEX_SOURCE="syg@voxnumeri.pw:/home/syg/storage/sandbox/textures"
-OGEX_SOURCE="syg@voxnumeri.pw:/home/syg/storage/sandbox/ogex"
+BLEND_SOURCE="syg@vps:/home/syg/storage/sandbox/blends"
+TEX_SOURCE="syg@vps:/home/syg/storage/sandbox/textures"
+OGEX_SOURCE="syg@vps:/home/syg/storage/sandbox/ogex"
 
 FINAL_OGEX := $(patsubst blends/%.blend,ogex/%.ogex, $(wildcard blends/*.blend))
 
