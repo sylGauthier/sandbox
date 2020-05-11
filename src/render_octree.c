@@ -29,8 +29,8 @@ static void render_phys_object(struct PhysObject* obj, struct Material* mat, str
     scale3v(model[1], 2 * obj->aabbDimensions[1]);
     scale3v(model[2], 2 * obj->aabbDimensions[2]);
     memcpy(model[3], obj->pos, sizeof(Vec3));
-    material_set_matrices(mat, model, invNormal);
     set_color(mat, 1, 0.2, 0);
+    material_set_matrices(mat, model, invNormal);
     vertex_array_render(arr);
 }
 
@@ -45,8 +45,8 @@ static void render_cell(struct PhysOctreeCell* cell, struct Material* mat, struc
     scale3v(model[1], 2 * cell->radius);
     scale3v(model[2], 2 * cell->radius);
     memcpy(model[3], cell->pos, sizeof(Vec3));
-    material_set_matrices(mat, model, invNormal);
     set_color(mat, 0, 1, 0.2);
+    material_set_matrices(mat, model, invNormal);
     vertex_array_render(arr);
     if (cell->objects) {
         struct List* cur = cell->objects;
