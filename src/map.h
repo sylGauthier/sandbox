@@ -1,7 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include <game/scene/scene.h>
+#include <3dmr/scene/scene.h>
 
 #include "light_manager.h"
 #include "phys/phys_object.h"

@@ -1,5 +1,5 @@
-#include <game/math/linear_algebra.h>
-#include <game/math/quaternion.h>
+#include <3dmr/math/linear_algebra.h>
+#include <3dmr/math/quaternion.h>
 
 #ifndef PHYSIC_H
 #define PHYSIC_H

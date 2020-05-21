@@ -1,4 +1,4 @@
-DEPS := game
+DEPS := 3dmr
 
 CFLAGS ?= -std=c89 -pedantic -march=native -Wall -g
 CFLAGS += -DOPENGEX=1

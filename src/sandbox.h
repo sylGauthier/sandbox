@@ -3,10 +3,9 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <game/init.h>
-#include <game/render/camera_buffer_object.h>
-#include <game/render/lights_buffer_object.h>
-#include <game/scene/opengex.h>
+#include <3dmr/render/camera_buffer_object.h>
+#include <3dmr/render/lights_buffer_object.h>
+#include <3dmr/scene/opengex.h>
 
 #include "map.h"
 #include "character.h"

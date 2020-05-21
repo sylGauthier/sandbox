@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <game/scene/opengex.h>
+#include <3dmr/scene/opengex.h>
 
 #include "map.h"
 #include "utils/utils.h"

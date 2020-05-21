@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <game/scene/opengex.h>
+#include <3dmr/scene/opengex.h>
 
 #include "character.h"
 #include "phys/phys_solver.h"

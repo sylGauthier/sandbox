@@ -1,9 +1,9 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
-#include <game/scene/skin.h>
-#include <game/animation/transition.h>
-#include <game/animation/play.h>
+#include <3dmr/scene/skin.h>
+#include <3dmr/animation/transition.h>
+#include <3dmr/animation/play.h>
 
 #include "phys/phys_octree.h"
 

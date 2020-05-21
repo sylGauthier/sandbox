@@ -1,9 +1,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <game/material/solid.h>
-#include <game/render/vertex_array.h>
-#include <game/mesh/box.h>
+#include <3dmr/material/solid.h>
+#include <3dmr/render/vertex_array.h>
+#include <3dmr/mesh/box.h>
 
 #include "render_octree.h"
 

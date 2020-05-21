@@ -38,10 +38,6 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
     int sceneInit = 0, mapLoad = 0, charLoad = 0;
     Vec3 ambient = {0.03, 0.03, 0.04};
 
-    if (!game_init(GAME_SHADERS_PATH)) {
-        fprintf(stderr, "Error: failed to init game library\n");
-        return 0;
-    }
     light_mgr_init(&sandbox->lmgr, &sandbox->scene);
     if (!(sandbox->viewer = viewer_new(1024, 768, "sandbox"))) {
         fprintf(stderr, "Error: failed to start viewer\n");

@@ -1,8 +1,8 @@
 #ifndef LIGHT_MAnAGER_H
 #define LIGHT_MAnAGER_H
 
-#include <game/scene/scene.h>
-#include <game/render/lights_buffer_object.h>
+#include <3dmr/scene/scene.h>
+#include <3dmr/render/lights_buffer_object.h>
 
 struct LightManager {
     unsigned int numDirectionalLights, numPointLights, numSpotLights;
