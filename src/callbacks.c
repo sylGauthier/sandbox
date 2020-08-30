@@ -21,11 +21,7 @@ void key_callback(struct Viewer* viewer, int key, int scancode, int action, int 
             break;
         case GLFW_KEY_F1:
             if (action != GLFW_PRESS) return;
-            if (sandbox->camera == sandbox->character.fppov) {
-                sandbox_set_camera(sandbox, sandbox->character.tppov);
-            } else {
-                sandbox_set_camera(sandbox, sandbox->character.fppov);
-            }
+            sandbox_set_camera(sandbox, sandbox->character.tppov);
             break;
         case GLFW_KEY_F2:
             if (action != GLFW_PRESS) return;
@@ -48,25 +44,27 @@ void key_callback(struct Viewer* viewer, int key, int scancode, int action, int 
             if (action != GLFW_PRESS) return;
             phys_octree_print(&sandbox->octree);
             break;
-            /*
-        case GLFW_KEY_LEFT: case GLFW_KEY_UP:
-            prog->activeCam = (prog->activeCam + prog->metadata.nbCameraNodes - 1) % prog->metadata.nbCameraNodes;
-            update_cam(viewer, prog);
+        case GLFW_KEY_A:
+            if (action != GLFW_PRESS) return;
+            character_rotate(&sandbox->character, 10. / 360. * 2 * M_PI);
             break;
-        case GLFW_KEY_RIGHT: case GLFW_KEY_DOWN:
-            prog->activeCam = (prog->activeCam + 1) % prog->metadata.nbCameraNodes;
-            update_cam(viewer, prog);
+        case GLFW_KEY_D:
+            if (action != GLFW_PRESS) return;
+            character_rotate(&sandbox->character, -10. / 360. * 2 * M_PI);
             break;
-            */
+        default:
+            break;
     }
 }
 
 void cursor_callback(struct Viewer* viewer, double xpos, double ypos, double dx, double dy,
                      int bl, int bm, int br, void* data) {
+    Vec3 axisX = {1, 0, 0};
     Vec3 axisY = {0, 1, 0};
     struct Sandbox* sandbox = data;
 
-    node_rotate(sandbox->character.main, axisY, -dx / viewer->width);
+    node_rotate(sandbox->character.tppovOrientation, axisY, -dx / viewer->width);
+    node_slew(sandbox->character.tppovOrientation, axisX, -dy / viewer->width);
 }
 
 void close_callback(struct Viewer* viewer, void* data) {

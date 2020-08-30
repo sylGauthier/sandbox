@@ -60,7 +60,7 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
 
         scene_update_nodes(&sandbox->scene, update_node, sandbox);
 
-        sandbox_set_camera(sandbox, sandbox->map.metadata.cameraNodes[0]);
+        sandbox_set_camera(sandbox, sandbox->character.tppov);
         light_mgr_set_ambient(&sandbox->lmgr, ambient);
 
         uniform_buffer_send(&sandbox->scene.lights);
