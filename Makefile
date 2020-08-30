@@ -1,7 +1,6 @@
 DEPS := 3dmr
 
 CFLAGS ?= -std=c89 -pedantic -march=native -Wall -g
-CFLAGS += -DOPENGEX=1
 CFLAGS += $(shell pkg-config --cflags $(DEPS)) -I.
 LDFLAGS += $(shell pkg-config --libs $(DEPS)) -lm
 

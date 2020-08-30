@@ -1,11 +1,13 @@
 #ifndef SANDBOX_H
 #define SANDBOX_H
 
+#include <stdio.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include <3dmr/render/camera_buffer_object.h>
 #include <3dmr/render/lights_buffer_object.h>
-#include <3dmr/scene/opengex.h>
+#include <3dmr/scene/import.h>
 
 #include "map.h"
 #include "character.h"

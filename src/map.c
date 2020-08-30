@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <3dmr/scene/opengex.h>
+#include <3dmr/scene/gltf.h>
 
 #include "map.h"
 #include "utils/utils.h"
@@ -67,7 +67,7 @@ int map_load(struct Map* map, char* mapFilename, struct Scene* scene, struct Lig
     if (!(mapFile = fopen(mapFilename, "r"))) {
         fprintf(stderr, "Error: map: could not open file: %s\n", mapFilename);
         ok = 0;
-    } else if (!ogex_load(&scene->root, mapFile, dirname(mapFilename), &map->sharedData, &map->metadata)) {
+    } else if (!gltf_load(&scene->root, mapFile, dirname(mapFilename), &map->sharedData, &map->metadata, 1)) {
         fprintf(stderr, "Error: map: ogex load failed\n");
         ok = 0;
     } else if (!load_phys_objects(map, &scene->root)) {

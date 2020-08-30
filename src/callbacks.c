@@ -22,7 +22,7 @@ void key_callback(struct Viewer* viewer, int key, int scancode, int action, int 
         case GLFW_KEY_F1:
             if (action != GLFW_PRESS) return;
             if (sandbox->camera == sandbox->character.fppov) {
-            sandbox_set_camera(sandbox, sandbox->character.tppov);
+                sandbox_set_camera(sandbox, sandbox->character.tppov);
             } else {
                 sandbox_set_camera(sandbox, sandbox->character.fppov);
             }

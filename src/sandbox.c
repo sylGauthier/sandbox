@@ -74,9 +74,6 @@ int sandbox_load(struct Sandbox* sandbox, char* character, char* map) {
     if (sandbox->viewer) {
         viewer_free(sandbox->viewer);
     }
-    if (sceneInit) {
-        scene_free(&sandbox->scene, imported_node_free);
-    }
     return 0;
 }
 

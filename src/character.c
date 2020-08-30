@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <3dmr/scene/opengex.h>
+#include <3dmr/scene/gltf.h>
 
 #include "character.h"
 #include "phys/phys_solver.h"
@@ -54,6 +54,15 @@ static int character_init(struct Character* character) {
     return 1;
 }
 
+static struct Node* find_cam(struct Node* n) {
+    unsigned int i;
+    if (n->type == NODE_CAMERA) return n;
+    for (i = 0; i < n->nbChildren; i++) {
+        if (n->children[i]->type == NODE_CAMERA) return n->children[i];
+    }
+    return NULL;
+}
+
 static int character_setup_nodes(struct Node* cur, struct Character* character) {
     int i = 0;
     if (!cur || !cur->name) return 1;
@@ -61,11 +70,17 @@ static int character_setup_nodes(struct Node* cur, struct Character* character) 
         character->skeleton = cur;
         printf("Found character skeleton\n");
     } else if (!strcmp(cur->name, CHARACTER_FPPOV_NAME)) {
-        character->fppov = cur;
-        printf("Found character fppov\n");
+        if (!(character->fppov = find_cam(cur))) {
+            printf("Warning: fppov not a camera, nor any of its children\n");
+        } else {
+            printf("Found character fppov\n");
+        }
     } else if (!strcmp(cur->name, CHARACTER_TPPOV_NAME)) {
-        character->tppov = cur;
-        printf("Found character tppov\n");
+        if (!(character->tppov = find_cam(cur))) {
+            printf("Warning: tppov not a camera, nor any of its children\n");
+        } else {
+            printf("Found character tppov\n");
+        }
     }
     for (i = 0; i < cur->nbChildren; i++) {
         character_setup_nodes(cur->children[i], character);
@@ -100,20 +115,21 @@ int character_load(struct Character* character, char* charFilename, struct Node*
     } else if (!(charFile = fopen(charFilename, "r"))) {
         fprintf(stderr, "Error: could not open character file: %s\n", charFilename);
         ok = 0;
-    } else if (!ogex_load(character->main, charFile, dirname(charFilename),
-        &character->sharedData, &character->metadata)) {
+    } else if (!gltf_load(character->main, charFile, dirname(charFilename),
+                          &character->sharedData, &character->metadata, 1)) {
         fprintf(stderr, "Error: character import failed\n");
         ok = 0;
     } else if (!node_add_child(root, character->main)) {
         nodes_free(character->main, imported_node_free);
         free(character->main);
         ok = 0;
+    } else {
+        character_setup_nodes(character->main, character);
+        character_setup_clip(character);
+        character->animStack = NULL;
+        character_set_action(character, ACTION_IDLE);
     }
     if (charFile) fclose(charFile);
-    character_setup_nodes(character->main, character);
-    character_setup_clip(character);
-    character->animStack = NULL;
-    character_set_action(character, ACTION_IDLE);
     return ok;
 }
 

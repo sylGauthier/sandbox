@@ -1,21 +1,21 @@
 BLEND_SOURCE="syg@vps:/home/syg/storage/sandbox/blends"
 TEX_SOURCE="syg@vps:/home/syg/storage/sandbox/textures"
-OGEX_SOURCE="syg@vps:/home/syg/storage/sandbox/ogex"
+GLB_SOURCE="syg@vps:/home/syg/storage/sandbox/glb"
 
-FINAL_OGEX := $(patsubst blends/%.blend,ogex/%.ogex, $(wildcard blends/*.blend))
+FINAL_GLB := $(patsubst blends/%.blend,glb/%.glb, $(wildcard blends/*.blend))
 
 .PHONY: all
 
-all: $(FINAL_OGEX)
+all: $(FINAL_GLB)
 
-blends textures ogex:
+blends textures glb:
 	mkdir "$@"
 
-ogex/%.ogex: blends/%.blend ogex
-	../scripts/blend2ogex.sh "$<" "$@"
+glb/%.glb: blends/%.blend glb
+	../scripts/blend2glb.sh "$<" "$@"
 
 clean:
-	rm ogex/*.ogex blends/*.ogex
+	rm glb/*.glb
 
 push_blends:
 	[ -n "$(BLEND_SOURCE)" ] && rsync -P blends/*.blend $(BLEND_SOURCE)
@@ -23,10 +23,10 @@ push_blends:
 push_textures:
 	[ -n "$(TEX_SOURCE)" ] && rsync -rP textures/ $(TEX_SOURCE)
 
-push_ogex:
-	[ -n "$(OGEX_SOURCE)" ] && rsync -rzP ogex/ $(OGEX_SOURCE)
+push_glb:
+	[ -n "$(GLB_SOURCE)" ] && rsync -rzP glb/ $(GLB_SOURCE)
 
-push_all: push_blends push_textures push_ogex
+push_all: push_blends push_textures push_glb
 
 pull_blends: blends
 	[ -n "$(BLEND_SOURCE)" ] && rsync -rP $(BLEND_SOURCE) ./
@@ -34,8 +34,8 @@ pull_blends: blends
 pull_textures: textures
 	[ -n "$(TEX_SOURCE)" ] && rsync -rP $(TEX_SOURCE) ./
 
-pull_ogex: ogex
-	[ -n "$(OGEX_SOURCE)" ] && rsync -rzP $(OGEX_SOURCE) ./
+pull_glb: glb
+	[ -n "$(GLB_SOURCE)" ] && rsync -rzP $(GLB_SOURCE) ./
 
-pull_all: pull_blends pull_textures pull_ogex
+pull_all: pull_blends pull_textures pull_glb
 
